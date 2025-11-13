@@ -20,12 +20,33 @@
         }
 
         .container {
-            max-width: 1000px;
+            max-width: 1200px;
             margin: 0 auto;
             background: #000000;
             border: 2px solid #00ff00;
             padding: 20px;
             box-shadow: 0 0 20px rgba(0, 255, 0, 0.2);
+        }
+
+        /* Telegram Contact */
+        .contact-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            background: #001100;
+            border: 1px solid #00ff00;
+            margin-bottom: 20px;
+        }
+
+        .contact-header a {
+            color: #00ff00;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .contact-header a:hover {
+            text-shadow: 0 0 10px #00ff00;
         }
 
         h1 {
@@ -36,6 +57,40 @@
             margin-bottom: 20px;
             text-transform: uppercase;
             letter-spacing: 2px;
+        }
+
+        /* Controls */
+        .controls {
+            background: #001100;
+            padding: 15px;
+            border: 1px solid #00ff00;
+            margin-bottom: 20px;
+        }
+
+        .control-group {
+            margin-bottom: 15px;
+        }
+
+        .control-group label {
+            display: block;
+            color: #00ff00;
+            font-weight: bold;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            font-size: 0.85em;
+        }
+
+        .filter-input {
+            width: 100%;
+            padding: 8px;
+            background: #000000;
+            border: 1px solid #00ff00;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+        }
+
+        .filter-input::placeholder {
+            color: #008800;
         }
 
         .search-box {
@@ -52,6 +107,7 @@
             color: #008800;
         }
 
+        /* Stats */
         .stats {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -78,6 +134,35 @@
             text-transform: uppercase;
         }
 
+        /* Toggle buttons */
+        .view-toggle {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .toggle-btn {
+            flex: 1;
+            padding: 10px;
+            background: #000000;
+            color: #00ff00;
+            border: 2px solid #00ff00;
+            cursor: pointer;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .toggle-btn:hover:not(.active) {
+            background: #00ff00;
+            color: #000000;
+        }
+
+        .toggle-btn.active {
+            background: #00ff00;
+            color: #000000;
+        }
+
+        /* Connection list */
         .connection {
             background: #001100;
             padding: 15px;
@@ -130,6 +215,23 @@
             text-decoration: underline;
         }
 
+        /* Network graph */
+        #networkGraph {
+            display: none;
+            background: #001100;
+            border: 1px solid #00ff00;
+            margin-bottom: 20px;
+        }
+
+        #networkGraph canvas {
+            display: block;
+            cursor: grab;
+        }
+
+        #networkGraph canvas:active {
+            cursor: grabbing;
+        }
+
         .loading {
             text-align: center;
             padding: 40px;
@@ -147,6 +249,7 @@
             display: none;
         }
 
+        /* Responsive */
         @media (max-width: 600px) {
             .connection-header {
                 flex-direction: column;
@@ -157,12 +260,36 @@
 </head>
 <body>
     <div class="container">
+        <!-- Telegram Contact Header -->
+        <div class="contact-header">
+            <div>📡 Instagram Network Report</div>
+            <div>Contact: <a href="https://t.me/nugpuller" target="_blank">@nugpuller</a></div>
+        </div>
+
         <h1>Instagram Network Report</h1>
         
         <input type="text" id="searchBox" class="search-box" placeholder="[SEARCH USERS...]">
         
+        <!-- Follower Filter -->
+        <div class="controls">
+            <div class="control-group">
+                <label>Filter by Specific Followers (comma separated)</label>
+                <input type="text" id="followerFilter" class="filter-input" placeholder="e.g., champagnepapi, certifiedjared">
+            </div>
+        </div>
+
         <div id="stats" class="stats"></div>
         
+        <!-- View Toggle -->
+        <div class="view-toggle">
+            <button id="listViewBtn" class="toggle-btn active">List View</button>
+            <button id="graphViewBtn" class="toggle-btn">Network Graph</button>
+        </div>
+
+        <div id="networkGraph">
+            <canvas id="graphCanvas" width="800" height="600"></canvas>
+        </div>
+
         <div id="loading" class="loading">// LOADING REPORT DATA...</div>
         <div id="error" class="error hidden">[ERROR] REPORT FILE NOT FOUND</div>
         
@@ -175,24 +302,48 @@
                 this.connections = [];
                 this.filteredConnections = [];
                 this.searchBox = document.getElementById('searchBox');
+                this.followerFilter = document.getElementById('followerFilter');
                 this.container = document.getElementById('connectionsContainer');
                 this.stats = document.getElementById('stats');
                 this.loading = document.getElementById('loading');
                 this.error = document.getElementById('error');
+                this.networkGraph = document.getElementById('networkGraph');
+                this.canvas = document.getElementById('graphCanvas');
+                this.ctx = this.canvas.getContext('2d');
                 
+                // View toggles
+                this.listViewBtn = document.getElementById('listViewBtn');
+                this.graphViewBtn = document.getElementById('graphViewBtn');
+                
+                // Event listeners
                 this.searchBox.addEventListener('input', () => this.filterConnections());
+                this.followerFilter.addEventListener('input', () => this.filterConnections());
+                this.listViewBtn.addEventListener('click', () => this.switchView('list'));
+                this.graphViewBtn.addEventListener('click', () => this.switchView('graph'));
+                
                 this.loadReport();
+            }
+
+            switchView(view) {
+                if (view === 'list') {
+                    this.listViewBtn.classList.add('active');
+                    this.graphViewBtn.classList.remove('active');
+                    this.networkGraph.style.display = 'none';
+                    this.container.style.display = 'block';
+                } else {
+                    this.listViewBtn.classList.remove('active');
+                    this.graphViewBtn.classList.add('active');
+                    this.container.style.display = 'none';
+                    this.networkGraph.style.display = 'block';
+                    this.drawNetwork();
+                }
             }
 
             async loadReport() {
                 try {
-                    // Try to load the report file
                     const response = await fetch('network_report.txt');
+                    if (!response.ok) throw new Error('File not found');
                     
-                    if (!response.ok) {
-                        throw new Error('File not found');
-                    }
-
                     const text = await response.text();
                     this.parseReport(text);
                     this.render();
@@ -207,27 +358,21 @@
                 const lines = text.split('\n');
                 let currentConnection = null;
                 
-                // Extract header info
                 const thresholdMatch = text.match(/THRESHOLD: (\d+)\+/);
                 const exportedMatch = text.match(/EXPORTED: (.+)/);
                 const filesMatch = text.match(/FILES: (\d+)/);
-                const connectionsMatch = text.match(/CONNECTIONS: (\d+)/);
                 
                 this.reportInfo = {
                     threshold: thresholdMatch ? thresholdMatch[1] : '3',
                     exported: exportedMatch ? exportedMatch[1] : 'Unknown',
-                    files: filesMatch ? filesMatch[1] : '0',
-                    totalConnections: connectionsMatch ? connectionsMatch[1] : '0'
+                    files: filesMatch ? filesMatch[1] : '0'
                 };
 
-                // Parse connection blocks
                 for (let i = 0; i < lines.length; i++) {
                     const line = lines[i].trim();
                     
                     if (line.startsWith('USER: ')) {
-                        if (currentConnection) {
-                            this.connections.push(currentConnection);
-                        }
+                        if (currentConnection) this.connections.push(currentConnection);
                         currentConnection = {
                             user: line.replace('USER: ', ''),
                             mutual: 0,
@@ -240,18 +385,13 @@
                     }
                 }
                 
-                // Add the last connection
-                if (currentConnection) {
-                    this.connections.push(currentConnection);
-                }
-
+                if (currentConnection) this.connections.push(currentConnection);
                 this.filteredConnections = [...this.connections];
             }
 
             render() {
                 this.loading.classList.add('hidden');
                 
-                // Render stats
                 this.stats.innerHTML = `
                     <div class="stat-card">
                         <div class="stat-value">${this.reportInfo.threshold}+</div>
@@ -266,7 +406,7 @@
                         <div class="stat-label">Connections</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-value">${this.reportInfo.exported}</div>
+                        <div class="stat-value">${new Date(this.reportInfo.exported).toLocaleDateString()}</div>
                         <div class="stat-label">Generated</div>
                     </div>
                 `;
@@ -297,17 +437,182 @@
 
             filterConnections() {
                 const query = this.searchBox.value.toLowerCase().trim();
+                const followerQuery = this.followerFilter.value.trim();
                 
-                if (!query) {
-                    this.filteredConnections = [...this.connections];
-                } else {
-                    this.filteredConnections = this.connections.filter(conn => 
+                this.filteredConnections = this.connections.filter(conn => {
+                    // Search filter
+                    const matchesSearch = !query || 
                         conn.user.toLowerCase().includes(query) ||
-                        conn.sources.some(s => s.toLowerCase().includes(query))
-                    );
-                }
+                        conn.sources.some(s => s.toLowerCase().includes(query));
+                    
+                    // Follower filter
+                    let matchesFollowers = true;
+                    if (followerQuery) {
+                        const requiredFollowers = followerQuery.split(',').map(s => s.trim()).filter(Boolean);
+                        matchesFollowers = requiredFollowers.every(f => 
+                            conn.sources.some(s => s.toLowerCase() === f.toLowerCase())
+                        );
+                    }
+                    
+                    return matchesSearch && matchesFollowers;
+                });
                 
                 this.renderConnections();
+                this.updateStats();
+            }
+
+            updateStats() {
+                const visibleUsers = this.filteredConnections.length;
+                const avgMutual = this.filteredConnections.length > 0 
+                    ? (this.filteredConnections.reduce((sum, c) => sum + c.mutual, 0) / visibleUsers).toFixed(1)
+                    : 0;
+                
+                // Update the stats display
+                this.stats.innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-value">${visibleUsers}</div>
+                        <div class="stat-label">Visible</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${this.reportInfo.threshold}+</div>
+                        <div class="stat-label">Threshold</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${avgMutual}</div>
+                        <div class="stat-label">Avg Mutual</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${this.reportInfo.files}</div>
+                        <div class="stat-label">Files</div>
+                    </div>
+                `;
+            }
+
+            drawNetwork() {
+                const width = this.canvas.width;
+                const height = this.canvas.height;
+                
+                // Clear canvas
+                this.ctx.fillStyle = '#001100';
+                this.ctx.fillRect(0, 0, width, height);
+                
+                if (this.filteredConnections.length === 0) return;
+                
+                // Build node list
+                const nodes = new Map();
+                const edges = [];
+                
+                // Add connections as nodes
+                this.filteredConnections.forEach((conn, i) => {
+                    nodes.set(conn.user, {
+                        x: Math.random() * width,
+                        y: Math.random() * height,
+                        vx: 0,
+                        vy: 0,
+                        color: '#00ff00',
+                        size: 5 + conn.mutual * 2,
+                        label: conn.user
+                    });
+                });
+                
+                // Add source nodes
+                const sources = new Set();
+                this.filteredConnections.forEach(conn => {
+                    conn.sources.forEach(source => {
+                        if (!nodes.has(source)) {
+                            nodes.set(source, {
+                                x: Math.random() * width,
+                                y: Math.random() * height,
+                                vx: 0,
+                                vy: 0,
+                                color: '#ff0000',
+                                size: 8,
+                                label: source
+                            });
+                        }
+                        // Create edge
+                        edges.push({ from: source, to: conn.user });
+                    });
+                });
+                
+                // Simple force-directed layout
+                const nodeArray = Array.from(nodes.values());
+                const iterations = 50;
+                
+                for (let iter = 0; iter < iterations; iter++) {
+                    // Repulsion
+                    for (let i = 0; i < nodeArray.length; i++) {
+                        for (let j = i + 1; j < nodeArray.length; j++) {
+                            const a = nodeArray[i];
+                            const b = nodeArray[j];
+                            const dx = b.x - a.x;
+                            const dy = b.y - a.y;
+                            const dist = Math.sqrt(dx * dx + dy * dy);
+                            
+                            if (dist > 0 && dist < 100) {
+                                const force = (100 - dist) / dist * 0.1;
+                                a.vx -= dx * force;
+                                a.vy -= dy * force;
+                                b.vx += dx * force;
+                                b.vy += dy * force;
+                            }
+                        }
+                    }
+                    
+                    // Attraction along edges
+                    edges.forEach(edge => {
+                        const a = nodes.get(edge.from);
+                        const b = nodes.get(edge.to);
+                        const dx = b.x - a.x;
+                        const dy = b.y - a.y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        
+                        if (dist > 0) {
+                            const force = (dist - 100) * 0.01;
+                            a.vx += dx * force;
+                            a.vy += dy * force;
+                            b.vx -= dx * force;
+                            b.vy -= dy * force;
+                        }
+                    });
+                    
+                    // Update positions
+                    nodeArray.forEach(node => {
+                        node.x += node.vx;
+                        node.y += node.vy;
+                        node.vx *= 0.9;
+                        node.vy *= 0.9;
+                        
+                        // Keep in bounds
+                        node.x = Math.max(20, Math.min(width - 20, node.x));
+                        node.y = Math.max(20, Math.min(height - 20, node.y));
+                    });
+                }
+                
+                // Draw edges
+                this.ctx.strokeStyle = '#008800';
+                this.ctx.lineWidth = 1;
+                edges.forEach(edge => {
+                    const a = nodes.get(edge.from);
+                    const b = nodes.get(edge.to);
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(a.x, a.y);
+                    this.ctx.lineTo(b.x, b.y);
+                    this.ctx.stroke();
+                });
+                
+                // Draw nodes
+                nodeArray.forEach(node => {
+                    this.ctx.fillStyle = node.color;
+                    this.ctx.beginPath();
+                    this.ctx.arc(node.x, node.y, node.size, 0, Math.PI * 2);
+                    this.ctx.fill();
+                    
+                    // Draw labels
+                    this.ctx.fillStyle = '#00ff00';
+                    this.ctx.font = '10px Courier New';
+                    this.ctx.fillText(node.label, node.x + 10, node.y - 10);
+                });
             }
         }
 
