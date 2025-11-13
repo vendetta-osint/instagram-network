@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>INSTAGRAM NETWORK REPORT</title>
+    <title>Instagram Network Report</title>
     <style>
         * {
             margin: 0;
@@ -15,14 +15,12 @@
             font-family: 'Courier New', monospace;
             background: #000000;
             color: #00ff00;
-            line-height: 1.6;
-            min-height: 100vh;
             padding: 20px;
-            text-shadow: 0 0 5px rgba(0, 255, 0, 0.3);
+            line-height: 1.6;
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1000px;
             margin: 0 auto;
             background: #000000;
             border: 2px solid #00ff00;
@@ -31,228 +29,290 @@
         }
 
         h1 {
-            color: #00ff00;
-            margin-bottom: 10px;
-            font-size: 1.8em;
             text-align: center;
-            text-transform: uppercase;
-            letter-spacing: 2px;
+            color: #00ff00;
             border-bottom: 2px solid #00ff00;
             padding-bottom: 10px;
-        }
-
-        .subtitle {
-            text-align: center;
-            color: #008800;
-            margin-bottom: 25px;
-            font-size: 0.9em;
-        }
-
-        .nav-tabs {
-            display: flex;
-            gap: 10px;
             margin-bottom: 20px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        .tab {
-            padding: 10px 20px;
-            background: #000000;
-            color: #008800;
-            border: 2px solid #008800;
-            cursor: pointer;
-            font-weight: bold;
             text-transform: uppercase;
-            transition: all 0.2s ease;
+            letter-spacing: 2px;
         }
 
-        .tab:hover {
-            border-color: #00ff00;
-            color: #00ff00;
-        }
-
-        .tab.active {
-            background: #00ff00;
-            color: #000000;
-            border-color: #00ff00;
-        }
-
-        .content-area {
+        .search-box {
+            width: 100%;
+            padding: 10px;
             background: #001100;
-            padding: 20px;
             border: 1px solid #00ff00;
-            min-height: 500px;
-            max-height: 80vh;
-            overflow-y: auto;
-            white-space: pre-wrap;
-            font-size: 0.9em;
-            line-height: 1.8;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            margin-bottom: 20px;
         }
 
-        .content-area a {
+        .search-box::placeholder {
+            color: #008800;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: #001100;
+            padding: 15px;
+            border: 1px solid #00ff00;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5em;
+            color: #00ff00;
+            font-weight: bold;
+        }
+
+        .stat-label {
+            color: #008800;
+            font-size: 0.8em;
+            text-transform: uppercase;
+        }
+
+        .connection {
+            background: #001100;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-left: 3px solid #00ff00;
+        }
+
+        .connection-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .username {
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .username a {
             color: #00ff00;
             text-decoration: none;
         }
 
-        .content-area a:hover {
+        .username a:hover {
             text-decoration: underline;
             text-shadow: 0 0 10px #00ff00;
         }
 
+        .mutual-count {
+            background: #00ff00;
+            color: #000000;
+            padding: 4px 8px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .sources {
+            color: #008800;
+            font-size: 0.9em;
+        }
+
+        .sources a {
+            color: #00ff00;
+            text-decoration: none;
+            margin-right: 10px;
+        }
+
+        .sources a:hover {
+            text-decoration: underline;
+        }
+
         .loading {
             text-align: center;
-            padding: 50px;
+            padding: 40px;
             color: #008800;
         }
 
         .error {
-            color: #ff0000;
-            padding: 20px;
-            border: 1px solid #ff0000;
-            background: #220000;
-        }
-
-        .status {
             text-align: center;
-            padding: 10px;
-            color: #008800;
-            margin-bottom: 15px;
+            padding: 40px;
+            color: #ff0000;
+            border: 2px solid #ff0000;
         }
 
-        /* Scrollbar styling */
-        ::-webkit-scrollbar {
-            width: 10px;
+        .hidden {
+            display: none;
         }
 
-        ::-webkit-scrollbar-track {
-            background: #000000;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #008800;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: #00ff00;
+        @media (max-width: 600px) {
+            .connection-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>INSTAGRAM NETWORK REPORT</h1>
-        <p class="subtitle">PUBLIC ACCESS TERMINAL</p>
+        <h1>Instagram Network Report</h1>
         
-        <div class="status" id="status">LOADING NETWORK DATA...</div>
+        <input type="text" id="searchBox" class="search-box" placeholder="[SEARCH USERS...]">
         
-        <div class="nav-tabs" id="navTabs">
-            <div class="tab" data-file="network_3plus.txt">3+ MUTUAL</div>
-            <div class="tab" data-file="network_4plus.txt">4+ MUTUAL</div>
-            <div class="tab" data-file="network_5plus.txt">5+ MUTUAL</div>
-            <div class="tab" data-file="network_6plus.txt">6+ MUTUAL</div>
-        </div>
-
-        <div class="content-area" id="contentArea">
-            <div class="loading">
-                <p>// INITIALIZING...</p>
-                <p>// AWAITING USER SELECTION...</p>
-            </div>
-        </div>
+        <div id="stats" class="stats"></div>
+        
+        <div id="loading" class="loading">// LOADING REPORT DATA...</div>
+        <div id="error" class="error hidden">[ERROR] REPORT FILE NOT FOUND</div>
+        
+        <div id="connectionsContainer"></div>
     </div>
 
     <script>
-        class NetworkViewer {
+        class ReportViewer {
             constructor() {
-                this.contentArea = document.getElementById('contentArea');
-                this.status = document.getElementById('status');
-                this.navTabs = document.getElementById('navTabs');
-                this.currentFile = null;
+                this.connections = [];
+                this.filteredConnections = [];
+                this.searchBox = document.getElementById('searchBox');
+                this.container = document.getElementById('connectionsContainer');
+                this.stats = document.getElementById('stats');
+                this.loading = document.getElementById('loading');
+                this.error = document.getElementById('error');
                 
-                this.attachEventListeners();
-                this.loadDefault();
+                this.searchBox.addEventListener('input', () => this.filterConnections());
+                this.loadReport();
             }
 
-            attachEventListeners() {
-                this.navTabs.addEventListener('click', (e) => {
-                    if (e.target.classList.contains('tab')) {
-                        this.loadFile(e.target.dataset.file);
-                        
-                        // Update active tab
-                        document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-                        e.target.classList.add('active');
-                    }
-                });
-            }
-
-            async loadFile(filename) {
-                this.currentFile = filename;
-                this.status.textContent = `LOADING ${filename}...`;
-                this.contentArea.innerHTML = '<div class="loading">// FETCHING DATA...</div>';
-
+            async loadReport() {
                 try {
-                    const response = await fetch(filename);
-                    if (!response.ok) {
-                        throw new Error(`FILE NOT FOUND: ${filename}`);
-                    }
+                    // Try to load the report file
+                    const response = await fetch('network_report.txt');
                     
+                    if (!response.ok) {
+                        throw new Error('File not found');
+                    }
+
                     const text = await response.text();
-                    this.displayContent(text);
-                    this.status.textContent = `LOADED: ${filename} (${this.countConnections(text)} connections)`;
+                    this.parseReport(text);
+                    this.render();
                 } catch (error) {
-                    this.showError(error.message);
+                    this.loading.classList.add('hidden');
+                    this.error.classList.remove('hidden');
+                    this.error.textContent = `[ERROR] ${error.message}. Please upload network_report.txt`;
                 }
             }
 
-            displayContent(text) {
-                // Convert plain text to clickable HTML
-                let html = '';
+            parseReport(text) {
                 const lines = text.split('\n');
+                let currentConnection = null;
                 
-                for (let line of lines) {
-                    // Detect lines that contain usernames and make them clickable
-                    if (line.includes('instagram.com/')) {
-                        // Already a URL, make it clickable
-                        line = line.replace(/(https:\/\/www\.instagram\.com\/[^/\s]+)/g, 
-                            '<a href="$1" target="_blank">$1</a>');
-                        html += line + '\n';
-                    } else if (line.match(/^(USER|FOLLOWED BY|Sources):/i) || line.includes('→')) {
-                        // Lines with usernames
-                        line = line.replace(/([a-zA-Z0-9_\.]+)/g, (match) => {
-                            // Don't convert keywords
-                            if (['USER', 'MUTUAL', 'SOURCES', 'Followed', 'by'].includes(match)) return match;
-                            return `<a href="https://www.instagram.com/${match}" target="_blank">${match}</a>`;
-                        });
-                        html += line + '\n';
-                    } else if (line.includes('═')) {
-                        // Border lines
-                        html += `<span style="color: #008800">${line}</span>\n`;
-                    } else {
-                        html += line + '\n';
+                // Extract header info
+                const thresholdMatch = text.match(/THRESHOLD: (\d+)\+/);
+                const exportedMatch = text.match(/EXPORTED: (.+)/);
+                const filesMatch = text.match(/FILES: (\d+)/);
+                const connectionsMatch = text.match(/CONNECTIONS: (\d+)/);
+                
+                this.reportInfo = {
+                    threshold: thresholdMatch ? thresholdMatch[1] : '3',
+                    exported: exportedMatch ? exportedMatch[1] : 'Unknown',
+                    files: filesMatch ? filesMatch[1] : '0',
+                    totalConnections: connectionsMatch ? connectionsMatch[1] : '0'
+                };
+
+                // Parse connection blocks
+                for (let i = 0; i < lines.length; i++) {
+                    const line = lines[i].trim();
+                    
+                    if (line.startsWith('USER: ')) {
+                        if (currentConnection) {
+                            this.connections.push(currentConnection);
+                        }
+                        currentConnection = {
+                            user: line.replace('USER: ', ''),
+                            mutual: 0,
+                            sources: []
+                        };
+                    } else if (line.startsWith('MUTUAL: ') && currentConnection) {
+                        currentConnection.mutual = parseInt(line.replace('MUTUAL: ', ''));
+                    } else if (line.startsWith('SOURCES: ') && currentConnection) {
+                        currentConnection.sources = line.replace('SOURCES: ', '').split(', ');
                     }
                 }
                 
-                this.contentArea.innerHTML = html;
+                // Add the last connection
+                if (currentConnection) {
+                    this.connections.push(currentConnection);
+                }
+
+                this.filteredConnections = [...this.connections];
             }
 
-            countConnections(text) {
-                const matches = text.match(/^USER:/gm);
-                return matches ? matches.length : 0;
+            render() {
+                this.loading.classList.add('hidden');
+                
+                // Render stats
+                this.stats.innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-value">${this.reportInfo.threshold}+</div>
+                        <div class="stat-label">Threshold</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${this.reportInfo.files}</div>
+                        <div class="stat-label">Source Files</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${this.connections.length}</div>
+                        <div class="stat-label">Connections</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${this.reportInfo.exported}</div>
+                        <div class="stat-label">Generated</div>
+                    </div>
+                `;
+
+                this.renderConnections();
             }
 
-            showError(message) {
-                this.contentArea.innerHTML = `<div class="error">[ERROR] ${message}<br><br>FILE NOT FOUND - UPLOAD ALL .txt FILES TO SAME DIRECTORY</div>`;
-                this.status.textContent = 'ERROR LOADING FILE';
+            renderConnections() {
+                if (this.filteredConnections.length === 0) {
+                    this.container.innerHTML = '<div class="loading">[NO MATCHES FOUND]</div>';
+                    return;
+                }
+
+                this.container.innerHTML = this.filteredConnections.map(conn => `
+                    <div class="connection">
+                        <div class="connection-header">
+                            <div class="username">
+                                <a href="https://instagram.com/${conn.user}" target="_blank">${conn.user}</a>
+                            </div>
+                            <div class="mutual-count">${conn.mutual} MUTUAL</div>
+                        </div>
+                        <div class="sources">
+                            Followed by: ${conn.sources.map(s => `<a href="https://instagram.com/${s}" target="_blank">${s}</a>`).join(' ')}
+                        </div>
+                    </div>
+                `).join('');
             }
 
-            loadDefault() {
-                // Try to load the 3+ file by default
-                this.loadFile('network_3plus.txt');
-                document.querySelector('[data-file="network_3plus.txt"]').classList.add('active');
+            filterConnections() {
+                const query = this.searchBox.value.toLowerCase().trim();
+                
+                if (!query) {
+                    this.filteredConnections = [...this.connections];
+                } else {
+                    this.filteredConnections = this.connections.filter(conn => 
+                        conn.user.toLowerCase().includes(query) ||
+                        conn.sources.some(s => s.toLowerCase().includes(query))
+                    );
+                }
+                
+                this.renderConnections();
             }
         }
 
         // Initialize viewer
-        new NetworkViewer();
+        new ReportViewer();
     </script>
 </body>
 </html>
